@@ -16,7 +16,10 @@
     "mobile:open:android": "npx cap open android",
     "mobile:open:ios": "npx cap open ios",
     "mobile:assets:android": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate --android --iconBackgroundColor '#172446' --splashBackgroundColor '#172446'",
-    "mobile:assets:ios": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate --ios --iconBackgroundColor '#172446' --splashBackgroundColor '#172446'"
+    "mobile:assets:ios": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate --ios --iconBackgroundColor '#172446' --splashBackgroundColor '#172446'",
+    "store:assets": "node scripts/generate-native-assets.mjs",
+    "store:screenshots": "node scripts/capture-store-screenshots.mjs",
+    "store:prepare": "npm run store:assets && npm run build && npm run store:screenshots"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -33,7 +36,8 @@
     "vite-plugin-pwa": "^0.21.1",
     "@capacitor/cli": "^8.0.0",
     "@capacitor/assets": "^4.0.0",
-    "sharp": "^0.34.4"
+    "sharp": "^0.34.4",
+    "playwright": "^1.56.1"
   },
   "description": "YDS ve YÖKDİL için web, Android ve iOS sınav hazırlık uygulaması",
   "engines": {
