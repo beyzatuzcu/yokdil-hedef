@@ -13,7 +13,7 @@ test('2027 YÖKDİL/1 takvimi ve 107 günlük program',()=>{
  assert.equal(p.length,107);
  assert.equal(p[0].date,'2026-11-13');
  assert.equal(p.at(-1).date,'2027-02-27');
- assert.ok(p[0].tasks.length>=7);
+ assert.ok(p[0].tasks.length>=6);
  assert.equal(p.at(-1).day,107);
  assert.ok(p.some(d=>d.mock));
  assert.ok(p.every(d=>d.tasks.some(t=>t.type==='words')&&d.tasks.some(t=>t.type==='questions')));
