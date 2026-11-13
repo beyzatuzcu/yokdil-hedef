@@ -1,8 +1,19 @@
-# 🎓 YÖKDİL HEDEF — Gün Gün Sınav Hazırlık Uygulaması
+# 🎓 YDS & YÖKDİL HEDEF — Gün Gün Sınav Hazırlık Uygulaması
 
 **Hedef puanını belirle, sınava kadar gün gün görev oluştur, yaptıklarını işaretle, deneme çöz, eksiklerini gör.**
 
 Web ve mobil cihazda çalışan, kurulabilir **PWA**. Genel İngilizce eğitimi değil; YÖKDİL sınav türlerine, kelime/kalıp ezberine, süreli deneme ve yanlış analizine odaklıdır. Kullanıcı hesabı veya API anahtarı gerekmez.
+
+## Sınav seçimi: YDS veya YÖKDİL (13 Kasım 2026 güncellemesi)
+
+Uygulama ilk açıldığında **YDS mi YÖKDİL mi?** diye sorar. Ardından seçilen sınava ait güncel ÖSYM takviminden hedef oturumu, hedef puanı ve gerekiyorsa YÖKDİL alanı (Sağlık/Fen/Sosyal) seçilir. Sınava kalan gün sayısına göre her güne konu, kelime, kalıp, soru, yanlış tekrarı ve düzenli deneme görevleri hazırlanır.
+
+- **YDS:** 2026-YDS/2, 2027-YDS/1 ve /2; İngilizce e-YDS 2026/12 ve 2027 İngilizce oturumları. Genel akademik kelime, tense/passive, bağlaç, cloze, çeviri, cümle tamamlama, okuma, paragraf, **diyalog tamamlama** ve **yakın anlam (restatement)** dersleri ve özgün alıştırmalar.
+- **YÖKDİL:** Mevcut 2027 basılı ve elektronik Sağlık, Fen ve Sosyal oturumları. Alan bazlı soru/kelime çalışmaları korunur.
+- **Ayrı ilerleme:** Sınav tarihine göre günlük tikler ve tamamlanan konular ayrı kayıt altında tutulur; başka bir sınav seçmek önceki hedefin ilerlemesini silmez. Deneme performansı da YDS/YÖKDİL bazında ayrılır.
+- **Puan hedefi:** 80 soruluk 100 puan ölçeğinde 70 hedef yaklaşık 56 doğru demektir. Puan göstergesi yalnız gerçek alıştırma sonuçlarını örnekler; garanti edilen ÖSYM sonucu değildir.
+- **Telif:** Resmî çıkmış sorular ZIP içinde bulunmaz; ÖSYM'nin yayımladığı resmî kitapçık sayfalarına bağlantı vardır. YDS'ye eklenen 47 soru ve konu içi örnekler özgün hazırlanmıştır.
+- **Takvim kontrolü:** Sınav ve başvuru tarihleri 2027 ÖSYM takvimi ile eşleştirilmiştir. Değişiklikler için https://osym.gov.tr/Sayfa/SinavTakvimi sayfasını kontrol et.
 
 ## Özellikler
 
