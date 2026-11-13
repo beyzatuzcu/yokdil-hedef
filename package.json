@@ -9,12 +9,14 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.js",
     "build:mobile": "vite build --mode mobile",
-    "mobile:add:android": "npm run build:mobile && npx cap add android && npm run mobile:assets && npx cap sync android",
-    "mobile:add:ios": "npm run build:mobile && npx cap add ios && npm run mobile:assets && npx cap sync ios",
+    "mobile:add:android": "npm run build:mobile && npx cap add android && npm run mobile:assets:android && npx cap sync android",
+    "mobile:add:ios": "npm run build:mobile && npx cap add ios && npm run mobile:assets:ios && npx cap sync ios",
     "mobile:sync": "npm run build:mobile && npx cap sync",
     "mobile:assets": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate",
     "mobile:open:android": "npx cap open android",
-    "mobile:open:ios": "npx cap open ios"
+    "mobile:open:ios": "npx cap open ios",
+    "mobile:assets:android": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate --android --iconBackgroundColor '#172446' --splashBackgroundColor '#172446'",
+    "mobile:assets:ios": "node scripts/generate-native-assets.mjs && npx capacitor-assets generate --ios --iconBackgroundColor '#172446' --splashBackgroundColor '#172446'"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
