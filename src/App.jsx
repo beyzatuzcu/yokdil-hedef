@@ -2,10 +2,13 @@ import React,{useEffect,useMemo,useState} from 'react';
 import {LayoutDashboard,CalendarDays,BookOpenCheck,BrainCircuit,Layers3,PenLine,BookMarked,BarChart3,Settings2,ChevronRight,ChevronLeft,Check,CheckCheck,Clock3,Target,TrendingUp,ArrowUpRight,Play,RefreshCcw,Download,Upload,GraduationCap,ExternalLink,AlertCircle,CheckCircle2,Search,Bookmark,RotateCcw,Menu,X,FileText,Timer,ArrowRight,Sparkles,ShieldCheck,CalendarClock,BookText} from 'lucide-react';
 import {topics,patterns,questions} from './content.js';
 import DeepLesson from './DeepLesson.jsx';
+import SetupWizard from './SetupWizard.jsx';
+import {ydsQuestions} from './ydsQuestions.js';
+import {examTopics} from './ydsTopics.js';
 import {extraQuestions} from './extraQuestions.js';
 import {paragraphQuestions} from './paragraphQuestions.js';
 import {balancedMock} from './examSimulation.js';
-import {exams,sourceLinks,officialCalendar,officialCalendarPdf,turkishDay,todayTR,calendarDaysLeft,countdownParts,applicationStatus} from './exams.js';
+import {exams,sourceLinks,ydsSourceLinks,examsFor,nextExamFor,kindName,officialCalendar,officialCalendarPdf,turkishDay,todayTR,calendarDaysLeft,countdownParts,applicationStatus} from './exams.js';
 import {STORE_KEY,defaultData,loadData,saveData,shuffle,validateQuestions,downloadFile,neededCorrect,clamp,icsForExam} from './helpers.js';
 import {allCards,flatPatterns,generatePlan,dailyStats,estimateScore,planStatus,diffDays,addDays} from './planner.js';
 
@@ -42,23 +45,27 @@ export default function App(){
   const [topicOpen,setTopicOpen]=useState(topics[0].id);
   const [importStatus,setImportStatus]=useState('');
   const [mobileMenu,setMobileMenu]=useState(false);
-  const [showWelcome,setShowWelcome]=useState(()=>!loadData().onboarded);
+  const [showWelcome,setShowWelcome]=useState(()=>{const d=loadData();return !d.onboarded||!d.examKind;});
   useEffect(()=>{saveData(data);},[data]);
   useEffect(()=>{const t=setInterval(()=>setNow(Date.now()),1000);return ()=>clearInterval(t);},[]);
-  const exam=exams.find(x=>x.id===data.selectedExam)||exams[0];
+  const examKind=data.examKind||exams.find(x=>x.id===data.selectedExam)?.kind||'YOKDIL';
+  const exam=exams.find(x=>x.id===data.selectedExam&&x.kind===examKind)||nextExamFor(examKind);
+  const availableExams=examsFor(examKind);
+  const activeTopics=examTopics(examKind);
+  const activeSourceLinks=examKind==='YDS'?ydsSourceLinks:sourceLinks;
   const target=clamp(Number(data.target)||0,0,100);
   const needed=neededCorrect(target);
-  const plan=useMemo(()=>generatePlan({planStart:data.planStart,examDate:exam.date,target,field:data.field}),[data.planStart,exam.date,target,data.field]);
+  const plan=useMemo(()=>generatePlan({planStart:data.planStart,examDate:exam.date,target,field:data.field,examKind}),[data.planStart,exam.date,target,data.field,examKind]);
   const today=todayTR();
   const selectedDay=plan.find(d=>d.date===viewDate)||plan.find(d=>d.date===today)||plan[0];
   const selectedIndex=selectedDay?plan.indexOf(selectedDay):0;
   const stats=useMemo(()=>dailyStats(plan,data.daily,today),[plan,data.daily,today]);
-  const estimate=useMemo(()=>estimateScore(data.attempts),[data.attempts]);
+  const estimate=useMemo(()=>estimateScore((data.attempts||[]).filter(a=>(a.examKind||'YOKDIL')===examKind)),[data.attempts,examKind]);
   const status=planStatus(plan,stats,target,estimate);
   const countdown=countdownParts(exam.date,now);
-  const pool=useMemo(()=>[...questions,...extraQuestions,...paragraphQuestions,...(Array.isArray(data.customQuestions)?data.customQuestions:[])].filter(q=>(q.field==='Genel'||q.field===data.field)&&q.category!=='Diyalog'),[data.customQuestions,data.field]);
+  const pool=useMemo(()=>[...questions,...extraQuestions,...paragraphQuestions,...ydsQuestions,...(Array.isArray(data.customQuestions)?data.customQuestions:[])].filter(q=>examKind==='YDS'?(q.field==='Genel'||q.examKind==='YDS'):(q.field==='Genel'||q.field===data.field)&&q.category!=='Diyalog'&&q.category!=='Yakın Anlam'&&q.examKind!=='YDS'),[data.customQuestions,data.field,examKind]);
   const byId=useMemo(()=>new Map(pool.map(q=>[q.id,q])),[pool]);
-  const lastAnswers=useMemo(()=>{const map=new Map();for(const a of data.attempts||[])for(const ans of a.answers||[])if(ans.chosen!==null&&ans.chosen!==undefined)map.set(ans.id,ans);return map;},[data.attempts]);
+  const lastAnswers=useMemo(()=>{const map=new Map();for(const a of (data.attempts||[]).filter(item=>(item.examKind||'YOKDIL')===examKind))for(const ans of a.answers||[])if(ans.chosen!==null&&ans.chosen!==undefined)map.set(ans.id,ans);return map;},[data.attempts,examKind]);
   const wrongQuestions=useMemo(()=>[...lastAnswers.values()].filter(a=>!a.correct&&byId.has(a.id)).map(a=>({q:byId.get(a.id),answer:a})),[lastAnswers,byId]);
   const totalDoneWords=data.learned?.length||0;
   const relevantCards=useMemo(()=>allCards.filter(c=>c.field==='Genel'||c.field===data.field),[data.field]);
@@ -75,13 +82,16 @@ export default function App(){
 
   function go(next){setPage(next);setMobileMenu(false);setResult(null);window.scrollTo({top:0,behavior:'smooth'});}
   function update(patch){setData(prev=>({...prev,...patch}));}
+  function changeExam(id){const selected=exams.find(e=>e.id===id);if(!selected)return;setData(prev=>({ ...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:prev.daily||{}},selectedExam:id,examKind:selected.kind,field:selected.kind==='YDS'?'Genel':selected.fields.includes(prev.field)?prev.field:selected.fields[0],daily:(prev.progressByExam||{})[id]||{},planStart:todayTR()}));setViewDate(todayTR());}
+  function changeKind(kind){const next=nextExamFor(kind);if(!next)return;setData(prev=>({...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:prev.daily||{}},examKind:kind,selectedExam:next.id,field:kind==='YDS'?'Genel':next.fields.includes(prev.field)?prev.field:next.fields[0],daily:(prev.progressByExam||{})[next.id]||{},planStart:todayTR()}));setViewDate(todayTR());}
+
   function toggleIn(key,id){setData(prev=>({...prev,[key]:prev[key].includes(id)?prev[key].filter(x=>x!==id):[...prev[key],id]}));}
   function toggleTask(d,taskId){setData(prev=>({...prev,daily:{...prev.daily,[d.date]:{...(prev.daily?.[d.date]||{}),[taskId]:!prev.daily?.[d.date]?.[taskId]}}}));}
   function openDay(d){setViewDate(d.date);go('plan');}
   function startQuiz({kind='practice',count=20,category='Tümü',ids=null,date=null}={}){
     let chosen=[];
     if(ids){chosen=shuffle(ids.filter(id=>byId.has(id))).slice(0,count).map(id=>byId.get(id));}
-    else if(kind==='full'){chosen=balancedMock(pool);}
+    else if(kind==='full'){chosen=balancedMock(pool,examKind);}
     else if(category!=='Tümü'){
       const matching=shuffle(pool.filter(q=>q.category===category));const others=shuffle(pool.filter(q=>q.category!==category));
       const part=kind==='topic'?Math.ceil(count*.7):Math.ceil(count*.45);
@@ -90,7 +100,7 @@ export default function App(){
     const distinct=Array.from(new Map(chosen.map(q=>[q.id,q])).values()).slice(0,count);
     if(!distinct.length){window.alert('Bu seçim için soru bulunamadı.');return;}
     const duration=kind==='full'?180:kind==='mini'?40:Math.max(15,Math.round(distinct.length*2.25));
-    setQuiz({kind,title:kind==='full'?'Tam deneme':kind==='mini'?'Mini deneme':kind==='mistakes'?'Yanlış tekrar testi':'Soru pratiği',ids:distinct.map(q=>q.id),answers:{},index:0,startedAt:Date.now(),duration,date});
+    setQuiz({kind,title:kind==='full'?`${kindName(examKind)} tam deneme`:kind==='mini'?'Mini deneme':kind==='mistakes'?'Yanlış tekrar testi':'Soru pratiği',ids:distinct.map(q=>q.id),answers:{},index:0,startedAt:Date.now(),duration,date});
     setResult(null);setPage('quiz');window.scrollTo({top:0,behavior:'instant'});
   }
   function answerQuiz(qid,choice){setQuiz(prev=>prev?{...prev,answers:{...prev.answers,[qid]:choice}}:prev);}
@@ -98,7 +108,7 @@ export default function App(){
     if(!quiz)return;
     const answers=quiz.ids.map(id=>{const q=byId.get(id);const chosen=Object.prototype.hasOwnProperty.call(quiz.answers,id)?quiz.answers[id]:null;return {id,category:q?.category||'Diğer',chosen,correct:chosen!==null&&chosen===q?.answer};});
     const correct=answers.filter(a=>a.correct).length;
-    const attempt={id:`a-${Date.now()}`,date:new Date().toISOString(),kind:quiz.kind,title:quiz.title,total:quiz.ids.length,correct,score:Math.round(correct/quiz.ids.length*1000)/10,answers,seconds:Math.min(quiz.duration*60,Math.floor((Date.now()-quiz.startedAt)/1000)),expired};
+    const attempt={id:`a-${Date.now()}`,date:new Date().toISOString(),examKind,kind:quiz.kind,title:quiz.title,total:quiz.ids.length,correct,score:Math.round(correct/quiz.ids.length*1000)/10,answers,seconds:Math.min(quiz.duration*60,Math.floor((Date.now()-quiz.startedAt)/1000)),expired};
     setData(prev=>{
       const daily={...prev.daily};const date=quiz.date;
       if(date){const taskKey=quiz.kind==='full'?'mock':'questions';const task=plan.find(d=>d.date===date)?.tasks.find(t=>t.id===taskKey);
