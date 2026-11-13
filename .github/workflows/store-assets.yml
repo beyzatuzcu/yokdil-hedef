@@ -18,8 +18,8 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: store-assets-${{ github.ref }}
-  cancel-in-progress: true
+  group: store-assets-${{ github.sha }}
+  cancel-in-progress: false
 jobs:
   create:
     name: Create store artwork and capture actual React app screens
