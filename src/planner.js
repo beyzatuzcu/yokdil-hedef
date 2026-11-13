@@ -93,7 +93,7 @@ export function generatePlan({planStart,examDate,target,field,examKind='YOKDIL'}
     tasks.push({id:'words',type:'words',label:newCards.length?`${newCards.length} yeni akademik kelime`:'Yeni kelime havuzu bitti • zorlandıklarını pekiştir',
       detail:newCards.length?newCards.slice(0,5).map(c=>c.word).join(' · '):'Mevcut havuzdaki kelimelerin eşdizim ve örneklerini yeniden öğren.',
       minutes:Math.max(12,Math.round(newCards.length*1.6)),items:newCards.map(c=>c.id)});
-    const effectiveReview=reviewCards.length?reviewCards:cardRotation(cardPool,i,load.reviewWords);
+    const effectiveReview=reviewCards.length?reviewCards:(newCards.length?newCards:cardRotation(cardPool,i,load.reviewWords));
     tasks.push({id:'vocabReview',type:'vocabReview',label:`${effectiveReview.length} kelimeyi aktif tekrar et`,
       detail:'Türkçe anlamı görmeden hatırla; edat, kalıp ve örnek cümleyi kontrol et.',
       minutes:Math.max(12,Math.round(effectiveReview.length*.65)),items:effectiveReview.map(c=>c.id)});
