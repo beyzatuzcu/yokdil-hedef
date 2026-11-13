@@ -1,0 +1,15 @@
+{
+  "appId": "com.yokdilhedef.study",
+  "appName": "YDS YÖKDİL Hedef",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#17204a",
+  "android": {
+    "backgroundColor": "#17204a",
+    "allowMixedContent": false
+  },
+  "ios": {
+    "backgroundColor": "#17204a",
+    "contentInset": "automatic"
+  }
+}
