@@ -15,6 +15,18 @@ Uygulama ilk açıldığında **YDS mi YÖKDİL mi?** diye sorar. Ardından seç
 - **Telif:** Resmî çıkmış sorular ZIP içinde bulunmaz; ÖSYM'nin yayımladığı resmî kitapçık sayfalarına bağlantı vardır. YDS'ye eklenen 47 soru ve konu içi örnekler özgün hazırlanmıştır.
 - **Takvim kontrolü:** Sınav ve başvuru tarihleri 2027 ÖSYM takvimi ile eşleştirilmiştir. Değişiklikler için https://osym.gov.tr/Sayfa/SinavTakvimi sayfasını kontrol et.
 
+## Çıkmış sorular arşivi ve gerçek kitapçık denemesi
+
+Sol menüde **Çıkmış Sorular** bölümünden YDS/YÖKDİL, yıl ve YÖKDİL alanına göre ÖSYM duyuru arşivine ulaşabilirsin.
+
+- ÖSYM yayımlama sayfasından **kamuya açık örnek kitapçığı** aç. Yalnızca yayımlanan soru numaralarını cevap kâğıdında seçerek 30 dakikalık örnek oturum çöz.
+- Kullanma hakkın olan bir tam kitapçık PDF'si varsa cihazından **Kendi PDF'ni aç** ile görüntüleyip **1–80 / 180 dakika** deneme çöz.
+- İşaretlediğin A–E cevaplar cihazında otomatik kaydedilir. Resmî cevap anahtarını ayrıca girebilir; doğru/yanlış/boş analizi görebilirsin. Tüm 80 sorunun anahtarı yoksa gerçek 80 soru puanı hesaplanmaz.
+- Bitirdiğin denemeler YDS/YÖKDİL bazında arşivlenir. ÖSYM soruları uygulamada kopyalanmaz; yalnızca resmi kaynak bağlantıları sunulur.
+- PDF dosyası yerel nesne URL'siyle cihazda açılır, GitHub'a yüklenmez veya hesaba gönderilmez. Sayfa kapatıldığında tekrar dosya seçmen gerekir.
+
+**Not:** ÖSYM'nin kamuya açık %10 örnekleri tam 80 soruluk sınav değildir. Geçmiş yıllarda adaylara açılmış tam kitapçıkların erişim süresi sona ermiş olabilir. Uygulama kapalı erişim haklarını aşamaz ve resmî soru metinlerini sunucuda barındırmaz.
+
 ## Özellikler
 
 - **Hedef puan:** 0–100 arası. Örneğin **70 puan için 56 doğru** (80 soru, iptal yoksa).
