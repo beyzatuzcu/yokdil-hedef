@@ -1,6 +1,7 @@
 // Reproducible app icon/splash source files. No proprietary font or image required.
 import sharp from 'sharp';
 import {mkdir} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 const dir=new URL('../assets/',import.meta.url);
 await mkdir(dir,{recursive:true});
 const design=(size=1024)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 1024 1024">
@@ -10,5 +11,5 @@ const design=(size=1024)=>`<svg xmlns="http://www.w3.org/2000/svg" width="${size
 <circle cx="751" cy="757" r="164" fill="#7b6af5"/>
 <path d="m661 764 64 65 121-152" fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
-await sharp(Buffer.from(design())).png().toFile(new URL('logo.png',dir));
+await sharp(Buffer.from(design())).png().toFile(fileURLToPath(new URL('logo.png',dir)));
 console.info('Created assets/logo.png for native icons and splash screens');
