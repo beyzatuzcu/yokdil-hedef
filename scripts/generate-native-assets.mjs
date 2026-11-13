@@ -9,7 +9,7 @@ const store=path.join(root,'store-assets');
 await Promise.all([mkdir(assets,{recursive:true}),mkdir(path.join(store,'google-play'),{recursive:true}),mkdir(path.join(store,'app-store'),{recursive:true})]);
 const iconSvg=await readFile(path.join(root,'branding/app-mark.svg'));
 
-const resizePng=async(size,file)=>sharp(iconSvg).resize(size,size).png().toFile(file);
+const resizePng=async(size,file)=>sharp(iconSvg).resize(size,size).flatten({background:'#172446'}).removeAlpha().png().toFile(file);
 await Promise.all([
   resizePng(1024,path.join(assets,'logo.png')),
   resizePng(1024,path.join(store,'app-store','icon-1024.png')),
