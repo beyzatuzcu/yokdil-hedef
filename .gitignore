@@ -12,3 +12,7 @@ ios/
 *.jks
 *.p12
 *.mobileprovision
+
+# Generated store artwork; source SVG and markdown docs are tracked.
+store-assets/**/*.png
+store-assets/**/*.jpg
