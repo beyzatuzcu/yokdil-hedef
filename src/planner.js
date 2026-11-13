@@ -1,46 +1,118 @@
 import {topics,patterns,cards} from './content.js';
 import {moreCards} from './studyBank.js';
+import {extendedCards} from './extendedVocabulary.js';
 import {clamp,neededCorrect} from './helpers.js';
 import {todayTR} from './exams.js';
 import {examTopics} from './ydsTopics.js';
 
 const DAY=86400000;
-export const allCards=[...cards,...moreCards];
+// Tekrarlı sözlük girdilerini kelime+örnek bakımından ayır; mevcut kart ID'lerini koru.
+export const allCards=[...cards,...moreCards,...extendedCards];
 export const flatPatterns=patterns.flatMap((g,group)=>g.items.map(([text,meaning],i)=>({id:`p${group}-${i}`,text,meaning,group:g.group})));
 const dayValue=s=>Date.parse(`${s}T00:00:00Z`);
 export const addDays=(s,n)=>new Date(dayValue(s)+n*DAY).toISOString().slice(0,10);
-export const diffDays=(a,b)=>Math.round((dayValue(b)-dayValue(a))/DAY);
-const topicFor=(n,kind)=>{const syllabus=examTopics(kind);return syllabus[(n+Math.floor(n/7))%syllabus.length];};
-
+export const diffDays=(a,b
+/**
+ * Sınava kalan süre ve hedef puana bağlı yoğunluk.
+ * “Yeni” kartlar ilk gösterimlerinde yeni sayılır; daha sonra tekrar havuzuna geçer.
+ * Sınırlı kart havuzunda aynı kartı yapay olarak yeni göstermeyiz.
+ */
+export function studyLoad({daysLeft,target=70,examKind='YOKDIL'}){
+  const rush=daysLeft<=21?3:daysLeft<=45?2:daysLeft<=75?1:0;
+  const aspiration=target>=85?2:target>=70?1:0;
+  const extra=examKind==='YDS'?1:0;
+  const newWords=Math.min(28,10+rush*3+aspiration*2+extra);
+  const reviewWords=Math.min(55,14+rush*8+aspiration*5+extra*3);
+  const questions=Math.min(75,22+rush*9+aspiration*7+extra*3);
+  const patterns=Math.min(10,3+rush+aspiration+extra);
+  const mockEvery=daysLeft<=30?5:daysLeft<=75?7:10;
+  return {rush,newWords,reviewWords,questions,patterns,mockEvery,
+    topicsPerDay:daysLeft<=90?2:1};
+}
+function cardRotation(cards,day,totalPerDay){
+  if(!cards.length)return [];
+  const start=((day*totalPerDay)%cards.length);
+  return Array.from({length:Math.min(totalPerDay,cards.length)},(_,j)=>cards[(start+j)%cards.length]);
+}
+function selectDailyCards(cards,i,newDaily,reviewDaily,length){
+  // Yeni kartlar benzersiz, tüm plan boyunca bir kere yeni olarak sunulur.
+  const newStart=i*newDaily;
+  const fresh=cards.slice(newStart,newStart+newDaily);
+  const previouslySeen=cards.slice(0,Math.min(cards.length,newStart));
+  const remainingReview=reviewDaily;
+  let revisions=[];
+  if(previouslySeen.length){
+    const seed=(i*17)%previouslySeen.length;
+    revisions=Array.from({length:Math.min(remainingReview,previouslySeen.length)},(_,j)=>previouslySeen[(seed+j*7)%previouslySeen.length]);
+    // Küçük havuzda 7 adımının ortak böleni tekrara yol açabilir.
+    revisions=[...new Map(revisions.map(c=>[c.id,c])).values()];
+    if(revisions.length<Math.min(remainingReview,previouslySeen.length)){
+      for(const c of previouslySeen){
+        if(revisions.length>=Math.min(remainingReview,previouslySeen.length))break;
+        if(!revisions.some(x=>x.id===c.id))revisions.push(c);
+      }
+    }
+  }
+  return {fresh,revisions};
+}
 export function generatePlan({planStart,examDate,target,field,examKind='YOKDIL'}){
-  const start=planStart || todayTR();
-  if (start>=examDate)return [];
+  const start=planStart||todayTR();
+  if(start>=examDate)return [];
   const length=clamp(diffDays(start,examDate),0,600);
   const required=neededCorrect(target);
-  const intensity=target>=85?3:target>=70?2:target>=55?1:0;
-  const vocabCount=[7,9,11,14][intensity];
-  const questionCount=[12,16,22,30][intensity];
+  const load=studyLoad({daysLeft:length,target,examKind});
+  const syllabus=examTopics(examKind);
+  const yds=examKind==='YDS';
+  const selected=allCards.filter(c=>c.field==='Genel'||c.field===field);
+  // Dizinin ilk günlerde sürekli aynı sıralamayı vermemesi için deterministik yer değiştirme.
+  const cardPool=[...selected.filter((_,j)=>j%2===0),...selected.filter((_,j)=>j%2!==0)];
   return Array.from({length},(_,i)=>{
-    const date=addDays(start,i), day=i+1, phase=(i/Math.max(1,length));
-    const topic=topicFor(i,examKind);
-    const mode=phase<.23?'Temel kurma':phase<.7?'Soru pratiği':'Deneme & hız';
-    const yds=examKind==='YDS';
-    const mock=phase>.15 && (i%14===13 || (phase>.78 && i%7===6));
+    const date=addDays(start,i), day=i+1, phase=i/Math.max(1,length);
+    const mode=phase<.2?'Temel ve hız kazanma':phase<.72?'Yoğun soru + konu':'Deneme ve eksik kapatma';
     const recovery=i%7===6;
-    // Daily cards are selected from the chosen field + general bank, never irrelevant fields.
-    const chosen=allCards.filter(c=>c.field==='Genel'||c.field===field);
-    const vocab=Array.from({length:vocabCount},(_,j)=>chosen[(i*vocabCount+j)%chosen.length]);
-    const pat=Array.from({length:2+Math.min(1,intensity)},(_,j)=>flatPatterns[(i*3+j)%flatPatterns.length]);
-    const qCount=Math.min(45,questionCount+(phase>.7?8:phase>.23?4:0)+(yds?3:0));
-    const tasks=[
-      {id:'topic',type:'topic',label:recovery?'Haftalık konu özeti & eksik kapatma':`${topic.title} • ayrıntılı konu dersi`,detail:recovery?'Haftanın zorlandığın iki başlığını not et.':`${topic.summary}`,minutes:recovery?20:topic.minutes,topicId:topic.id},
-      {id:'words',type:'words',label:`${vocabCount} akademik kelime ${phase>.3?'(+ eski kart tekrarı)':''}`,detail:vocab.slice(0,4).map(v=>v.word).join(' · ')+ ' ...',minutes:15+intensity*3,items:vocab.map(x=>x.id)},
-      {id:'patterns',type:'patterns',label:`${pat.length} kritik ${yds?'YDS':'YÖKDİL'} bağlaç / kalıp`,detail:pat.map(x=>x.text).join(' · '),minutes:12,items:pat.map(x=>x.id)},
-      {id:'questions',type:'questions',label:`${qCount} hedefli soru çöz`,detail:`${yds?'YDS genel İngilizce':'YÖKDİL '+field} • Doğru hedefi: yaklaşık ${Math.round(qCount*required/80)} / ${qCount}`,minutes:Math.round(qCount*2.3),count:qCount,category:topic.id},
-      {id:'review',type:'review',label:recovery?'Haftalık yanlış analizi':'Yanlış defteri + aralıklı tekrar',detail:recovery?'Bu hafta işaretlediğin yanlışların tamamını incele.':'Yanlış soruların nedenlerini ve aldatıcı seçenekleri gözden geçir.',minutes:recovery?25:12},
-    ];
-    if(mock) tasks.push({id:'mock',type:'mock',label:'80 soruluk süreli tam deneme',detail:`180 dakika • ${yds?'YDS':'YÖKDİL'} soru türü dağılımıyla tam prova ve yanlış analizi.`,minutes:180});
-    return {day,date,phase:mode,examKind,week:Math.ceil(day/7),topic,required,wordIds:vocab.map(x=>x.id),patternIds:pat.map(x=>x.id),tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock};
+    const fullMock=i>=Math.min(6,Math.floor(length*.12))&&((day%load.mockEvery===0)||(phase>.78&&day%5===0));
+    const primary=syllabus[(i+Math.floor(i/6))%syllabus.length];
+    const secondary=syllabus[(i+Math.floor(i/6)+Math.ceil(syllabus.length/2))%syllabus.length];
+    const allocation=selectDailyCards(cardPool,i,load.newWords,load.reviewWords,length);
+    const newCards=allocation.fresh;
+    const reviewCards=allocation.revisions;
+    const pat=cardRotation(flatPatterns,i,load.patterns);
+    const qCount=Math.min(80,load.questions+(phase>.72?7:phase>.2?3:0));
+    const questions=fullMock?Math.max(12,Math.round(qCount*.4)):qCount;
+    const tasks=[];
+    tasks.push({
+      id:'topic',type:'topic',label:recovery?`Haftalık analiz: ${primary.title}`:`${primary.title} • ayrıntılı konu`,
+      detail:recovery?'Bu konudaki kritik kuralları ve yanlışları yeniden değerlendir.':`${primary.summary} • konu mantığı + çözümlü örnek + uygulama`,
+      minutes:recovery?30:primary.minutes+15,topicId:primary.id
+    });
+    if(!fullMock && load.topicsPerDay>=2){
+      tasks.push({id:'topic2',type:'topic',label:`${secondary.title} • ikinci konu ve uygulama`,
+        detail:`${secondary.summary} • çözümlü örnekleri incele ve birkaç soru çöz`,
+        minutes:secondary.minutes+10,topicId:secondary.id});
+    }
+    tasks.push({id:'words',type:'words',label:newCards.length?`${newCards.length} yeni akademik kelime`:'Yeni kelime havuzu bitti • zorlandıklarını pekiştir',
+      detail:newCards.length?newCards.slice(0,5).map(c=>c.word).join(' · '):'Mevcut havuzdaki kelimelerin eşdizim ve örneklerini yeniden öğren.',
+      minutes:Math.max(12,Math.round(newCards.length*1.6)),items:newCards.map(c=>c.id)});
+    const effectiveReview=reviewCards.length?reviewCards:cardRotation(cardPool,i,load.reviewWords);
+    tasks.push({id:'vocabReview',type:'vocabReview',label:`${effectiveReview.length} kelimeyi aktif tekrar et`,
+      detail:'Türkçe anlamı görmeden hatırla; edat, kalıp ve örnek cümleyi kontrol et.',
+      minutes:Math.max(12,Math.round(effectiveReview.length*.65)),items:effectiveReview.map(c=>c.id)});
+    tasks.push({id:'patterns',type:'patterns',label:`${pat.length} kritik ${yds?'YDS':'YÖKDİL'} bağlaç / kalıp`,
+      detail:pat.map(x=>x.text).join(' · '),minutes:Math.max(12,pat.length*3),items:pat.map(x=>x.id)});
+    tasks.push({id:'questions',type:'questions',label:`${questions} hedefli soru çöz`,
+      detail:`${yds?'YDS genel İngilizce':'YÖKDİL '+field} • hedef ${Math.round(questions*required/80)} doğru • konu/soru tipi analizi`,
+      minutes:Math.round(questions*2.2),count:questions,category:primary.id});
+    tasks.push({id:'review',type:'review',label:recovery?'Haftalık yanlış + eksik konu analizi':'Yanlış defteri ve tekrar',
+      detail:recovery?'Haftanın yanlışlarını türlerine ayır; zorlandığın iki konuyu listele.':'Yanlışlarını kelime, bağlaç, dilbilgisi ve paragraf olarak sınıflandır.',
+      minutes:recovery?35:20});
+    if(fullMock)tasks.push({id:'mock',type:'mock',label:'80 soruluk süreli tam deneme',
+      detail:`180 dakika • ${yds?'YDS':'YÖKDİL'} prova ve değerlendirme. Deneme gününde ikinci konu çıkarıldı, soru yükü azaltıldı.`,minutes:180});
+    return {day,date,phase:mode,examKind,week:Math.ceil(day/7),topic:primary,secondaryTopic:fullMock?null:secondary,required,
+      wordIds:newCards.map(c=>c.id),reviewWordIds:effectiveReview.map(c=>c.id),patternIds:pat.map(x=>x.id),
+      tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock:fullMock,load};
+  });
+}
+,week:Math.ceil(day/7),topic,required,wordIds:vocab.map(x=>x.id),patternIds:pat.map(x=>x.id),tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock};
   });
 }
 export function dailyStats(plan,daily,reference=todayTR()){
