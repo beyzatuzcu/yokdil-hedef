@@ -2,3 +2,13 @@ node_modules
 dist
 .env
 .DS_Store
+
+# Generated local assets and platform-specific native project directories.
+assets/
+android/
+ios/
+.gradle/
+*.keystore
+*.jks
+*.p12
+*.mobileprovision
