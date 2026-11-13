@@ -11,7 +11,7 @@ export const allCards=[...cards,...moreCards,...extendedCards];
 export const flatPatterns=patterns.flatMap((g,group)=>g.items.map(([text,meaning],i)=>({id:`p${group}-${i}`,text,meaning,group:g.group})));
 const dayValue=s=>Date.parse(`${s}T00:00:00Z`);
 export const addDays=(s,n)=>new Date(dayValue(s)+n*DAY).toISOString().slice(0,10);
-export const diffDays=(a,b
+export const diffDays=(a,b)=>Math.round((dayValue(b)-dayValue(a))/DAY);
 /**
  * Sınava kalan süre ve hedef puana bağlı yoğunluk.
  * “Yeni” kartlar ilk gösterimlerinde yeni sayılır; daha sonra tekrar havuzuna geçer.
@@ -110,9 +110,6 @@ export function generatePlan({planStart,examDate,target,field,examKind='YOKDIL'}
     return {day,date,phase:mode,examKind,week:Math.ceil(day/7),topic:primary,secondaryTopic:fullMock?null:secondary,required,
       wordIds:newCards.map(c=>c.id),reviewWordIds:effectiveReview.map(c=>c.id),patternIds:pat.map(x=>x.id),
       tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock:fullMock,load};
-  });
-}
-,week:Math.ceil(day/7),topic,required,wordIds:vocab.map(x=>x.id),patternIds:pat.map(x=>x.id),tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock};
   });
 }
 export function dailyStats(plan,daily,reference=todayTR()){
