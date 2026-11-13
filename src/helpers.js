@@ -1,5 +1,5 @@
 export const STORE_KEY='yokdil-hedef-v1';
-export const defaultData={target:70,field:'Sağlık',selectedExam:'2027-1',onboarded:false,topicDone:[],learned:[],bookmarked:[],patternStarred:[],daily:{},attempts:[],customQuestions:[]};
+export const defaultData={target:70,field:'Sağlık',selectedExam:'2027-1',examKind:null,onboarded:false,topicDone:[],learned:[],bookmarked:[],patternStarred:[],daily:{},attempts:[],customQuestions:[]};
 export const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 export const neededCorrect=target=>Math.ceil(clamp(Number(target)||0,0,100)/1.25);
 export function loadData(){try{const value=JSON.parse(localStorage.getItem(STORE_KEY)||'null');return value&&typeof value==='object'? {...defaultData,...value}:defaultData;}catch{return defaultData;}}
