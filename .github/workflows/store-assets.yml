@@ -1,0 +1,90 @@
+name: Prepare store listing assets
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'branding/**'
+      - 'scripts/generate-native-assets.mjs'
+      - 'scripts/capture-store-screenshots.mjs'
+      - 'store-assets/**'
+      - 'public/privacy.html'
+      - 'public/support.html'
+      - 'src/App.jsx'
+      - 'src/SetupWizard.jsx'
+      - 'src/styles.css'
+      - 'package.json'
+      - '.github/workflows/store-assets.yml'
+permissions:
+  contents: read
+concurrency:
+  group: store-assets-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  create:
+    name: Create store artwork and capture actual React app screens
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run existing test suite
+        run: npm test
+      - name: Generate Play Store, App Store and native icons/splash
+        run: npm run store:assets
+      - name: Build the actual web app used in captures
+        run: npm run build
+      - name: Install Chromium for genuine React screenshots
+        run: npx playwright install --with-deps chromium
+      - name: Capture phone-size screenshots and test UI navigation
+        run: npm run store:screenshots
+      - name: Verify submission asset sizes
+        run: |
+          node --input-type=module <<'JS'
+          import sharp from 'sharp';
+          import fs from 'node:fs';
+          const specs=[
+            ['store-assets/google-play/icon-512.png',512,512],
+            ['store-assets/google-play/feature-graphic-1024x500.png',1024,500],
+            ['store-assets/app-store/icon-1024.png',1024,1024],
+            ['assets/logo.png',1024,1024],
+            ['assets/splash.png',2732,2732],
+            ['assets/splash-dark.png',2732,2732]
+          ];
+          for(const [file,w,h] of specs){
+            const m=await sharp(file).metadata();
+            if(m.width!==w||m.height!==h)throw Error(file+' expected '+w+'x'+h+' got '+m.width+'x'+m.height);
+            if(file.includes('app-store')&&m.hasAlpha)throw Error('App Store icon must not contain transparency');
+            console.log('Verified',file,m.width+'x'+m.height);
+          }
+          for(const [platform,w,h] of [['android',1080,1920],['iphone-6.9',1320,2868]]){
+            const dir='store-assets/screenshots/'+platform;
+            const images=fs.readdirSync(dir).filter(x=>x.endsWith('.png'));
+            if(images.length<9)throw Error(platform+' has only '+images.length+' screenshots');
+            for(const f of images){
+              const m=await sharp(dir+'/'+f).metadata();
+              if(m.width!==w||m.height!==h)throw Error(f+' invalid resolution');
+            }
+            console.log(platform+' screenshots validated:',images.length);
+          }
+          JS
+      - name: Upload all store-ready source materials
+        uses: actions/upload-artifact@v4
+        with:
+          name: yds-yokdil-store-package
+          path: |
+            store-assets/
+            assets/logo.png
+            assets/splash.png
+            assets/splash-dark.png
+            branding/app-mark.svg
+            public/privacy.html
+            public/support.html
+          if-no-files-found: error
+          retention-days: 60
