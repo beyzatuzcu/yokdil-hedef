@@ -42,6 +42,12 @@ Sol menüde **Çıkmış Sorular** bölümünden YDS/YÖKDİL, yıl ve YÖKDİL 
 - **Çıkmış sorular:** 2026 resmî ÖSYM soru kitapçıklarına ve sınav arşivine bağlantılar.
 - **Yedekleme & soru içe aktarma:** Çalışma verilerini JSON yedekle / yükle. Hak sahibi olduğun soruları örnek şemayla içe aktar.
 
+## 📱 Google Play & App Store hazırlığı
+
+React/PWA projesi **Capacitor 8** ile Android ve iOS paketine dönüştürülebilir. Uygulama ikonları otomatik üretilir, Android debug APK ve iOS simülatör derlemesi GitHub Actions'ta doğrulanabilir. Bunlar **mağazaya yayınlandığı** anlamına gelmez.
+
+**[Mobil yayın rehberini aç](MOBILE_PUBLISHING.md)** — kurulum komutları, geliştirici hesapları, Android imzalı AAB, iOS imzalı IPA, mağaza ekran görüntüleri ve veri/gizlilik kontrol listesi. Uygulama kimliği örnektir; ilk mağaza yayını öncesi kesinleştirilmelidir.
+
 ## GitHub üzerinden yayımlama (bilgisayara Node kurmadan)
 
 1. Bu ZIP dosyasını **klasöre çıkar**. GitHub'ın web arayüzü ZIP dosyasını doğrudan çalışan bir repoya dönüştürmez; içindeki dosyaları yüklemek gerekir.
