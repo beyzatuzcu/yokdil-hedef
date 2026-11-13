@@ -30,11 +30,11 @@ export const pastPapers=[
     "year": 2025,
     "session": "YDS/1",
     "title": "2025 YDS/1 · İngilizce",
-    "url": "https://www.osym.gov.tr/2025yds1-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/7",
     "fields": [
       "Genel"
     ],
-    "verified": true
+    "verified": false
   },
   {
     "id": "yds-2025-ingilizce",
@@ -42,7 +42,7 @@ export const pastPapers=[
     "year": 2025,
     "session": "YDS/İngilizce",
     "title": "2025 YDS/İngilizce",
-    "url": "https://www.osym.gov.tr/SinavGrubu/Index/7",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/7",
     "fields": [
       "Genel"
     ],
@@ -54,11 +54,11 @@ export const pastPapers=[
     "year": 2024,
     "session": "YDS/2",
     "title": "2024 YDS/2 · İngilizce",
-    "url": "https://www.osym.gov.tr/2024yds2-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/7",
     "fields": [
       "Genel"
     ],
-    "verified": true
+    "verified": false
   },
   {
     "id": "yds-2024-1",
@@ -66,7 +66,7 @@ export const pastPapers=[
     "year": 2024,
     "session": "YDS/1",
     "title": "2024 YDS/1 · İngilizce",
-    "url": "https://www.osym.gov.tr/SinavGrubu/Index/7",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/7",
     "fields": [
       "Genel"
     ],
@@ -92,13 +92,13 @@ export const pastPapers=[
     "year": 2026,
     "session": "YÖKDİL/1",
     "title": "2026 YÖKDİL/1",
-    "url": "https://www.osym.gov.tr/2026yokdil1-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/12",
     "fields": [
       "Sağlık",
       "Fen",
       "Sosyal"
     ],
-    "verified": true
+    "verified": false
   },
   {
     "id": "yokdil-2025-2",
@@ -106,7 +106,7 @@ export const pastPapers=[
     "year": 2025,
     "session": "YÖKDİL/2",
     "title": "2025 YÖKDİL/2",
-    "url": "https://www.osym.gov.tr/SinavGrubu/Index/12",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/12",
     "fields": [
       "Sağlık",
       "Fen",
@@ -134,13 +134,13 @@ export const pastPapers=[
     "year": 2024,
     "session": "YÖKDİL/2",
     "title": "2024 YÖKDİL/2",
-    "url": "https://www.osym.gov.tr/2024yokdil2-sinavi-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/12",
     "fields": [
       "Sağlık",
       "Fen",
       "Sosyal"
     ],
-    "verified": true
+    "verified": false
   },
   {
     "id": "yokdil-2024-1",
@@ -148,7 +148,7 @@ export const pastPapers=[
     "year": 2024,
     "session": "YÖKDİL/1",
     "title": "2024 YÖKDİL/1",
-    "url": "https://www.osym.gov.tr/SinavGrubu/Index/12",
+    "url": "https://osym.gov.tr/SinavGrubu/Index/12",
     "fields": [
       "Sağlık",
       "Fen",
