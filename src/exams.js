@@ -13,6 +13,12 @@ export const exams = [
   ,{kind:'YDS',id:'2026-eyds-12',name:'e-YDS 2026/12 · İngilizce',date:'2026-12-19',applicationStart:'2026-12-02',applicationEnd:'2026-12-10',late:null,result:'2026-12-19',type:'Elektronik',fields:['Genel']}
   ,{kind:'YDS',id:'2027-eyds-1',name:'e-YDS 2027/1 · İngilizce',date:'2027-01-16',applicationStart:'2027-01-04',applicationEnd:'2027-01-07',late:null,result:'2027-01-16',type:'Elektronik',fields:['Genel']}
   ,{kind:'YDS',id:'2027-eyds-2',name:'e-YDS 2027/2 · İngilizce',date:'2027-02-06',applicationStart:'2027-01-20',applicationEnd:'2027-01-28',late:null,result:'2027-02-06',type:'Elektronik',fields:['Genel']}
+  ,{"kind":"YDS","id":"2027-eyds-4","name":"e-YDS 2027/4 · İngilizce","date":"2027-04-24","applicationStart":"2027-04-07","applicationEnd":"2027-04-14","late":null,"result":"2027-04-24","type":"Elektronik","fields":["Genel"]}
+  ,{"kind":"YDS","id":"2027-eyds-6","name":"e-YDS 2027/6 · İngilizce","date":"2027-06-26","applicationStart":"2027-06-09","applicationEnd":"2027-06-17","late":null,"result":"2027-06-26","type":"Elektronik","fields":["Genel"]}
+  ,{"kind":"YDS","id":"2027-eyds-9","name":"e-YDS 2027/9 · İngilizce","date":"2027-08-21","applicationStart":"2027-08-04","applicationEnd":"2027-08-12","late":null,"result":"2027-08-21","type":"Elektronik","fields":["Genel"]}
+  ,{"kind":"YDS","id":"2027-eyds-10","name":"e-YDS 2027/10 · İngilizce","date":"2027-09-25","applicationStart":"2027-09-08","applicationEnd":"2027-09-16","late":null,"result":"2027-09-25","type":"Elektronik","fields":["Genel"]}
+  ,{"kind":"YDS","id":"2027-eyds-11","name":"e-YDS 2027/11 · İngilizce","date":"2027-10-16","applicationStart":"2027-09-29","applicationEnd":"2027-10-07","late":null,"result":"2027-10-16","type":"Elektronik","fields":["Genel"]}
+  ,{"kind":"YDS","id":"2027-eyds-12","name":"e-YDS 2027/12 · İngilizce","date":"2027-12-18","applicationStart":"2027-12-01","applicationEnd":"2027-12-09","late":null,"result":"2027-12-18","type":"Elektronik","fields":["Genel"]}
   ,{kind:'YDS',id:'2027-yds-1',name:'2027-YDS/1',date:'2027-03-28',applicationStart:'2027-02-03',applicationEnd:'2027-02-11',late:'2027-02-18',result:'2027-04-21',type:'Basılı',fields:['Genel']}
   ,{kind:'YDS',id:'2027-yds-2',name:'2027-YDS/2',date:'2027-11-21',applicationStart:'2027-10-05',applicationEnd:'2027-10-13',late:'2027-10-20',result:'2027-12-10',type:'Basılı',fields:['Genel']}
 ];
@@ -23,7 +29,7 @@ export const ydsSourceLinks = [
 ];
 export const kindName=kind=>kind==='YDS'?'YDS':'YÖKDİL';
 export const examsFor=kind=>exams.filter(e=>e.kind===kind).sort((a,b)=>a.date.localeCompare(b.date));
-export const nextExamFor=(kind,from=todayTR())=>examsFor(kind).find(e=>e.date>=from&&e.type==='Basılı')||examsFor(kind).find(e=>e.date>=from)||examsFor(kind).at(-1);
+export const nextExamFor=(kind,from=todayTR())=>examsFor(kind).find(e=>e.applicationEnd>=from&&e.type==='Basılı')||examsFor(kind).find(e=>e.date>=from&&e.type==='Basılı')||examsFor(kind).find(e=>e.date>=from)||examsFor(kind).at(-1);
 export const sourceLinks = [
   {name:'2026-YÖKDİL/2 — Resmî soru kitapçıkları (%10)',detail:'Sağlık, Fen ve Sosyal soru kitapçıkları',url:'https://osym.gov.tr/2026-yokdil2-sinavi-temel-soru-kitapciklarinin-yayimlanmasi-10',year:'2026'},
   {name:'2026-YÖKDİL/1 — Sorular ve cevap anahtarları',detail:'ÖSYM tarafından yayımlanan %10’luk içerik',url:'https://www.osym.gov.tr/2026yokdil1-temel-soru-kitapciklari-ve-cevap-anahtarlari-yayimlandi',year:'2026'},
