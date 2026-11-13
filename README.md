@@ -42,6 +42,18 @@ Sol menüde **Çıkmış Sorular** bölümünden YDS/YÖKDİL, yıl ve YÖKDİL 
 - **Çıkmış sorular:** 2026 resmî ÖSYM soru kitapçıklarına ve sınav arşivine bağlantılar.
 - **Yedekleme & soru içe aktarma:** Çalışma verilerini JSON yedekle / yükle. Hak sahibi olduğun soruları örnek şemayla içe aktar.
 
+## 🎨 Mağaza yayın materyalleri (Android ve iPhone)
+
+Google Play ve Apple App Store için hazırlanan Türkçe açıklamalar, gizlilik politikası, destek sayfası, uygulama logosu, splash/açılış ekranı ve gerçek React ekranı üzerinden otomatik ekran görüntüsü üretimi eklendi.
+
+- **[Mağaza açıklamaları ve SEO metinleri](store-assets/STORE_LISTING_TR.md)**
+- **[Görsellerin ölçüleri ve içerikleri](store-assets/ASSETS_README.md)**
+- **[Android/iPhone gerçek cihaz test matrisi](store-assets/TEST_MATRIX.md)**
+- **[Gizlilik politikası](https://beyzatuzcu.github.io/yokdil-hedef/privacy.html)** · **[Destek sayfası](https://beyzatuzcu.github.io/yokdil-hedef/support.html)**
+- **[GitHub Actions: Mağaza görsellerini oluştur](../../actions/workflows/store-assets.yml)** — başarılı iş akışı sonunda Artifacts bölümünde Android/iPhone görselleri, Play özelliği grafiği, ikon ve açılış ekranı bulunur.
+
+Yerelde paket üretmek için `npm install`, `npx playwright install chromium`, ardından `npm run store:prepare` kullan. Bu üretim Chromium mobil viewport emülasyonu kullanır; mağaza incelemesine gönderilmeden önce **uygulamanın gerçek iPhone ve Android telefon üzerindeki** ekran görüntüleri ve dosya/PDF akışları doğrulanmalıdır. Geliştirici iletişim bilgileri, mağaza hesapları ve imzalı dağıtım paketleri henüz kullanıcının hesabıyla tamamlanmalıdır.
+
 ## 📱 Google Play & App Store hazırlığı
 
 React/PWA projesi **Capacitor 8** ile Android ve iOS paketine dönüştürülebilir. Uygulama ikonları otomatik üretilir, Android debug APK ve iOS simülatör derlemesi GitHub Actions'ta doğrulanabilir. Bunlar **mağazaya yayınlandığı** anlamına gelmez.
