@@ -82,8 +82,33 @@ export default function App(){
 
   function go(next){setPage(next);setMobileMenu(false);setResult(null);window.scrollTo({top:0,behavior:'smooth'});}
   function update(patch){setData(prev=>({...prev,...patch}));}
-  function changeExam(id){const selected=exams.find(e=>e.id===id);if(!selected)return;setData(prev=>({ ...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:prev.daily||{}},selectedExam:id,examKind:selected.kind,field:selected.kind==='YDS'?'Genel':selected.fields.includes(prev.field)?prev.field:selected.fields[0],daily:(prev.progressByExam||{})[id]||{},planStart:todayTR()}));setViewDate(todayTR());}
-  function changeKind(kind){const next=nextExamFor(kind);if(!next)return;setTopicOpen('vocab');setData(prev=>({...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:prev.daily||{}},examKind:kind,selectedExam:next.id,field:kind==='YDS'?'Genel':next.fields.includes(prev.field)?prev.field:next.fields[0],daily:(prev.progressByExam||{})[next.id]||{},planStart:todayTR()}));setViewDate(todayTR());}
+  // Günlük tikleri ve konu tamamlama durumlarını hedef oturum bazında sakla.
+  function readExamProgress(prev,id){
+    const saved=(prev.progressByExam||{})[id];
+    if(!saved)return {daily:{},topicDone:[]};
+    return saved.daily!==undefined?{daily:saved.daily||{},topicDone:saved.topicDone||[]}:{daily:saved||{},topicDone:[]};
+  }
+  function changeExam(id){
+    const selected=exams.find(e=>e.id===id);
+    if(!selected||id===data.selectedExam)return;
+    setTopicOpen('vocab');
+    setData(prev=>{
+      const target=readExamProgress(prev,id);
+      return {...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:{daily:prev.daily||{},topicDone:prev.topicDone||[]}},selectedExam:id,examKind:selected.kind,field:selected.kind==='YDS'?'Genel':selected.fields.includes(prev.field)?prev.field:selected.fields[0],daily:target.daily,topicDone:target.topicDone,planStart:todayTR()};
+    });
+    setViewDate(todayTR());
+  }
+  function changeKind(kind){
+    const next=nextExamFor(kind);
+    if(!next)return;
+    setTopicOpen('vocab');
+    setData(prev=>{
+      if(prev.examKind===kind&&prev.selectedExam===next.id)return prev;
+      const target=readExamProgress(prev,next.id);
+      return {...prev,progressByExam:{...(prev.progressByExam||{}),[prev.selectedExam]:{daily:prev.daily||{},topicDone:prev.topicDone||[]}},examKind:kind,selectedExam:next.id,field:kind==='YDS'?'Genel':next.fields.includes(prev.field)?prev.field:next.fields[0],daily:target.daily,topicDone:target.topicDone,planStart:todayTR()};
+    });
+    setViewDate(todayTR());
+  }
 
   function toggleIn(key,id){setData(prev=>({...prev,[key]:prev[key].includes(id)?prev[key].filter(x=>x!==id):[...prev[key],id]}));}
   function toggleTask(d,taskId){setData(prev=>({...prev,daily:{...prev.daily,[d.date]:{...(prev.daily?.[d.date]||{}),[taskId]:!prev.daily?.[d.date]?.[taskId]}}}));}
