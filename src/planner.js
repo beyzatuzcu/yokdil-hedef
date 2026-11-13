@@ -2,6 +2,7 @@ import {topics,patterns,cards} from './content.js';
 import {moreCards} from './studyBank.js';
 import {clamp,neededCorrect} from './helpers.js';
 import {todayTR} from './exams.js';
+import {examTopics} from './ydsTopics.js';
 
 const DAY=86400000;
 export const allCards=[...cards,...moreCards];
@@ -9,9 +10,9 @@ export const flatPatterns=patterns.flatMap((g,group)=>g.items.map(([text,meaning
 const dayValue=s=>Date.parse(`${s}T00:00:00Z`);
 export const addDays=(s,n)=>new Date(dayValue(s)+n*DAY).toISOString().slice(0,10);
 export const diffDays=(a,b)=>Math.round((dayValue(b)-dayValue(a))/DAY);
-const topicFor=(n)=>topics[(n+Math.floor(n/7))%topics.length];
+const topicFor=(n,kind)=>{const syllabus=examTopics(kind);return syllabus[(n+Math.floor(n/7))%syllabus.length];};
 
-export function generatePlan({planStart,examDate,target,field}){
+export function generatePlan({planStart,examDate,target,field,examKind='YOKDIL'}){
   const start=planStart || todayTR();
   if (start>=examDate)return [];
   const length=clamp(diffDays(start,examDate),0,600);
@@ -21,24 +22,25 @@ export function generatePlan({planStart,examDate,target,field}){
   const questionCount=[12,16,22,30][intensity];
   return Array.from({length},(_,i)=>{
     const date=addDays(start,i), day=i+1, phase=(i/Math.max(1,length));
-    const topic=topicFor(i);
+    const topic=topicFor(i,examKind);
     const mode=phase<.23?'Temel kurma':phase<.7?'Soru pratiği':'Deneme & hız';
+    const yds=examKind==='YDS';
     const mock=phase>.15 && (i%14===13 || (phase>.78 && i%7===6));
     const recovery=i%7===6;
     // Daily cards are selected from the chosen field + general bank, never irrelevant fields.
     const chosen=allCards.filter(c=>c.field==='Genel'||c.field===field);
     const vocab=Array.from({length:vocabCount},(_,j)=>chosen[(i*vocabCount+j)%chosen.length]);
     const pat=Array.from({length:2+Math.min(1,intensity)},(_,j)=>flatPatterns[(i*3+j)%flatPatterns.length]);
-    const qCount=Math.min(45,questionCount+(phase>.7?8:phase>.23?4:0));
+    const qCount=Math.min(45,questionCount+(phase>.7?8:phase>.23?4:0)+(yds?3:0));
     const tasks=[
-      {id:'topic',type:'topic',label:recovery?'Haftalık konu özeti & eksik kapatma':`${topic.title} • konu tekrarı`,detail:recovery?'Haftanın zorlandığın iki başlığını not et.':`${topic.summary}`,minutes:recovery?20:topic.minutes,topicId:topic.id},
+      {id:'topic',type:'topic',label:recovery?'Haftalık konu özeti & eksik kapatma':`${topic.title} • ayrıntılı konu dersi`,detail:recovery?'Haftanın zorlandığın iki başlığını not et.':`${topic.summary}`,minutes:recovery?20:topic.minutes,topicId:topic.id},
       {id:'words',type:'words',label:`${vocabCount} akademik kelime ${phase>.3?'(+ eski kart tekrarı)':''}`,detail:vocab.slice(0,4).map(v=>v.word).join(' · ')+ ' ...',minutes:15+intensity*3,items:vocab.map(x=>x.id)},
-      {id:'patterns',type:'patterns',label:`${pat.length} kritik bağlaç / kalıp`,detail:pat.map(x=>x.text).join(' · '),minutes:12,items:pat.map(x=>x.id)},
-      {id:'questions',type:'questions',label:`${qCount} hedefli soru çöz`,detail:`Alan: ${field} • Doğru hedefi: yaklaşık ${Math.round(qCount*required/80)} / ${qCount}`,minutes:Math.round(qCount*2.3),count:qCount,category:topic.id},
+      {id:'patterns',type:'patterns',label:`${pat.length} kritik ${yds?'YDS':'YÖKDİL'} bağlaç / kalıp`,detail:pat.map(x=>x.text).join(' · '),minutes:12,items:pat.map(x=>x.id)},
+      {id:'questions',type:'questions',label:`${qCount} hedefli soru çöz`,detail:`${yds?'YDS genel İngilizce':'YÖKDİL '+field} • Doğru hedefi: yaklaşık ${Math.round(qCount*required/80)} / ${qCount}`,minutes:Math.round(qCount*2.3),count:qCount,category:topic.id},
       {id:'review',type:'review',label:recovery?'Haftalık yanlış analizi':'Yanlış defteri + aralıklı tekrar',detail:recovery?'Bu hafta işaretlediğin yanlışların tamamını incele.':'Yanlış soruların nedenlerini ve aldatıcı seçenekleri gözden geçir.',minutes:recovery?25:12},
     ];
-    if(mock) tasks.push({id:'mock',type:'mock',label:'80 soruluk süreli tam deneme',detail:'180 dakika • deneme sonrası yanlış sınıflandırma.',minutes:180});
-    return {day,date,phase:mode,week:Math.ceil(day/7),topic,required,wordIds:vocab.map(x=>x.id),patternIds:pat.map(x=>x.id),tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock};
+    if(mock) tasks.push({id:'mock',type:'mock',label:'80 soruluk süreli tam deneme',detail:`180 dakika • ${yds?'YDS':'YÖKDİL'} soru türü dağılımıyla tam prova ve yanlış analizi.`,minutes:180});
+    return {day,date,phase:mode,examKind,week:Math.ceil(day/7),topic,required,wordIds:vocab.map(x=>x.id),patternIds:pat.map(x=>x.id),tasks,minutes:tasks.reduce((sum,t)=>sum+t.minutes,0),mock};
   });
 }
 export function dailyStats(plan,daily,reference=todayTR()){
