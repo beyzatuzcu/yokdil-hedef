@@ -2,10 +2,11 @@ import React,{useState} from 'react';
 import {Check,CheckCheck,ArrowRight,AlertCircle,BookOpenCheck} from 'lucide-react';
 import {deepLessons} from './lessonsCore.js';
 import {additionalLessons} from './lessonsMore.js';
-const lessons={...deepLessons,...additionalLessons};
+import {ydsLessons} from './ydsLessons.js';
+const lessons={...deepLessons,...additionalLessons,...ydsLessons};
 const alphabet=['A','B','C','D','E'];
 
-export default function DeepLesson({topic,complete,onComplete,onQuiz}){
+export default function DeepLesson({topic,complete,onComplete,onQuiz,examKind='YOKDIL'}){
   const lesson=lessons[topic.id];
   const [answer,setAnswer]=useState(null);
   const [read,setRead]=useState([]);
@@ -22,7 +23,7 @@ export default function DeepLesson({topic,complete,onComplete,onQuiz}){
       <p>{ch.explanation}</p>
       <div className="lesson-example"><small>ÖRNEK CÜMLE</small><strong>{ch.example}</strong><em>{ch.translation}</em></div>
       <div className="lesson-reason"><b>Bu örnek neden böyle?</b><p>{ch.reason}</p></div>
-      <div className="lesson-trap"><AlertCircle size={17}/><div><b>YÖKDİL soru tuzağı</b><p>{ch.trap}</p></div></div>
+      <div className="lesson-trap"><AlertCircle size={17}/><div><b>{examKind==='YDS'?'YDS':'YÖKDİL'} soru tuzağı</b><p>{ch.trap}</p></div></div>
       <button className={'lesson-mark '+(read.includes(i)?'marked':'')} onClick={()=>mark(i)}>{read.includes(i)?<CheckCheck size={15}/>:<Check size={15}/>} {read.includes(i)?'Bölümü okudum ✓':'Bu bölümü okudum'}</button>
     </article>)}</div>
     <div className="lesson-practice"><span className="lesson-label">ADIM ADIM SORU ÇÖZÜMÜ</span><h3>Şıklar neden doğru ya da yanlış?</h3><p>Önce soruyu kendin çözmeye çalış, ardından çözüm aşamalarını aç.</p>{lesson.worked.map((w,i)=><details className="lesson-worked" key={i}><summary><b>{i+1}. {w.type}</b><span>{w.question}</span><small>Çözüm adımlarını göster</small></summary><div className="lesson-worked-body"><div className="lesson-choices">{w.options.map((o,j)=><p className={w.answer===j?'right':''} key={j}>{alphabet[j]}) {o}</p>)}</div><div className="lesson-solution"><b>Doğru cevap: {alphabet[w.answer]}</b><ol>{w.steps.map((st,j)=><li key={j}>{st}</li>)}</ol><p><b>Akılda kalsın:</b> {w.takeaway}</p></div></div></details>)}</div>
